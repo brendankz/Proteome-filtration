@@ -59,15 +59,9 @@ $ iep proteome.fasta
 The following python code consolidates the raw iep return for each protein, assigning a single value and attaching the GeneID:
 ```
 import re
-
-# Read the input file
 with open("data.iep", "r") as f:
     data = f.read()
-
-# Extract gene IDs and isoelectric points
 matches = re.findall(r'IEP of (\S+) from \d+ to \d+\nIsoelectric Point = (\d+\.\d+)', data)
-
-# Print the results
 for gene_id, iep in matches:
     print("{} {}".format(gene_id, iep))
 ```
