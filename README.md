@@ -74,5 +74,13 @@ Open iepgenesonlyfiltered.txt and metapredict_size_disorder.csv and copy each li
 ## **Proteome Filtration by Coiled-coil Domain**
 
 The DeepCoil program was used for coiled-coil domain predictions (https://github.com/labstructbioinf/DeepCoil)
+```
+$ pip3 install deepcoil
+```
 
 Plots of each protein previously filtered for size, disorder, and iso-electric point were generated using the plot function. These plots are generated as PNG images and can be locally downloaded for analysis. The images were analyzed visually for similarity to the coiled-coil domain of the target protein in domain structure and organization.
+
+```
+deepcoil [-h] -i FILE [-out_path DIR] [-n_cpu NCPU] [--gpu] [--plot]
+                [--dpi DPI]
+```
