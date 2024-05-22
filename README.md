@@ -34,8 +34,6 @@ GeneID Z Y X.XX%
 
 Where column 1 shows the GeneID, column 2 shows the total amount of amino acids (Z), column 3 shows the number of amino acids that satisfied the threshold (Y), and column 4 shows what the percentage of amino acids satisfying the threshold.
 
-```
-
 From there, the CSV can be filtered based on the desired size and disorder of the target range using the awk command:
 
 ```
