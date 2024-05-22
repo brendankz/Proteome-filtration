@@ -1,46 +1,46 @@
 # Proteome-filtration
-Series of code that takes a species' proteome in FASTA format and filters for proteins with 3 characteristics: Size, Intrinsic Disorder, and Isoelectric Point. The purpose of this procedure is to create a filtering procedure for proteins to find similar proteins to a target based on the physical characteristics of the target to discover results that would be omitted by a BLAST sequence similarity search.
+Series of code that takes a species' proteome in FASTA format and filters for proteins with 3 characteristics: Size, Intrinsic Disorder, and Isoelectric Point. The purpose of this procedure is to create a filtering procedure for proteins to find similar proteins to a target based on the physical characteristics of the target to discover results that may be omitted by a BLAST sequence similarity search.
 
 ## Prediction and Filtration by Disorder and Size:
 
-The program Metaprdict (https://github.com/idptools/metapredict) allows for predictions of disorder on a per residue basis from an entire proteome in FASTA format directly in command line
+The program Metaprdict (https://github.com/idptools/metapredict) allows for predictions of disorder on a per residue basis from an entire proteome in FASTA format directly in the command line
+
 Install with:
 ```
 $ pip install metapredict
 ```
 
-Metapredict recommends a threshold of 0.3 for siginifcant disorder, which was used to convert the spectrum of disorder values into a binary system of predicting disorder per residue so that disorder per protien can be easily defined as a percentage.
+Metapredict recommends a threshold of 0.3 for significant disorder, which was used to convert the spectrum of disorder values into a binary system of predicting disorder per residue so that disorder per protein can be easily defined as a percentage.
 Since disorder scores are returned on a per amino acid basis, this tool can also be used to quickly quantify the size of the protein.
-The following python code was generated to consilidate the raw data returned from metapredict and categorize disorder by protein:
+The following Python code was generated to consolidate the raw data returned from Metapredict and categorize disorder by protein:
 
 ```
 threshold = 0.30
 with open('metapredict_data.csv', 'r') as f:
     for line in f:
-        values = line.strip().split(',')[1:]
-        num_values = len(values)
-        filtered_values = list(filter(lambda x: float(x) > threshold, values))
-        num_filtered = len(filtered_values)
-        percentage = num_filtered / num_values * 100 if num_values > 0 else 0
-        print(f'Line {line.strip().split()[0]} has {num_values} values {num_filtered} of which meet the threshold ({threshold}) which is {percentage:.2f}')
+        disorder = line.strip().split(',')[1:]
+        amino_acids = len(disorder)
+        filtered_disorder = list(filter(lambda x: float(x) > threshold, disorder))
+        num_filtered = len(filtered_disorder)
+        percentage = num_filtered / amino_acids * 100 if amino_acids > 0 else 0
+        print(f'{line.strip().split()[0]} {amino_acids} {num_filtered} {percentage:.2f}')
+
 ```
 
-This returns a csv that contains the disorder, threshold of filtration on each amino acid, and the size of the protein.
+This returns a CSV file that contains the disorder, the threshold of filtration on each amino acid, and the size of the protein.
 A sample return is as follows:
 
-Line GeneID has Z values, Y of which meet the threshold (0.3), which is X.XX%
+GeneID Z Y X.XX%
 
-This return can be simplified in the command line to create a file that contains only GeneID, size, and disorder score with the following command:
+Where column 1 shows the GeneID, column 2 shows the total amount of amino acids (Z), column 3 shows the number of amino acids that satisfied the threshold (Y), and column 4 shows what the percentage of amino acids satisfying the threshold.
 
 ```
-$ cut -d ' ' -f 1,3,5,6,7,8,9,10,11,12,13,14 --complement metapredict_data_perprotein.csv > metapredict_data_clean.csv
-```
 
-From there, the csv can be filtered based on the desired size and disorder of the target range using the awk command:
+From there, the CSV can be filtered based on the desired size and disorder of the target range using the awk command:
 
 ```
 $ awk '$2 > A {print $1}'  metapredict_data_perprotein.csv > metapredict_size.csv
-$ awk '$3 > B {print $1}' metapredict_size.csv > metapredict_size_disorder.csv
+$ awk '$4 > B {print $1}' metapredict_size.csv > metapredict_size_disorder.csv
 ```
 
 This returns a list of the proteins that satisfy the requirements of size and disorder given.
@@ -56,7 +56,7 @@ With the Emboss package, the iso-electric point prediction tool can be used for 
 ```
 $ iep proteome.fasta
 ```
-The following python code consolidates the raw iep return for each protein, assigning a single value and attaching the GeneID:
+The following Python code consolidates the raw iep return for each protein, assigning a single value and attaching the GeneID:
 ```
 import re
 with open("data.iep", "r") as f:
@@ -73,4 +73,8 @@ awk ‘$2>{Lower Limit} && $2<{Upper Limit} {print $1}’ iep.clean.txt > iepgen
 ## Consolidating Disorder, Size, and Iso-Electric Point Filtrations
 Open iepgenesonlyfiltered.txt and metapredict_size_disorder.csv and copy each list. Input these separately into https://bioinfogp.cnb.csic.es/tools/venny/ to create a Venn Diagram of each filtered list and extract the similarities to generate the final filtered list of proteins.
 
+## **Proteome Filtration by Coiled-coil Domain**
 
+The DeepCoil program was used for coiled-coil domain predictions (https://github.com/labstructbioinf/DeepCoil)
+
+Plots of each protein previously filtered for size, disorder, and iso-electric point were generated using the plot function. These plots are generated as PNG images and can be locally downloaded for analysis. The images were analyzed visually for similarity to the coiled-coil domain of the target protein in domain structure and organization.
